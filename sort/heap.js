@@ -17,8 +17,7 @@ function heapSort(ary, func) {
 	 * * * * * * * * * * * * * * * * * * */
 	function heapify(startNodeIndex, end){
 		var i = startNodeIndex + 1,
-			len = end;
-		while ( i < len){
+		while ( i < end ){
 			siftUp(startNodeIndex, i++);
 		}
 	}
@@ -30,7 +29,6 @@ function heapSort(ary, func) {
 		while ( index > start && func(ary[index], ary[(index - start - 1 >> 1) + start]) ) {
 			switchPlace(index , index = (index - start - 1 >> 1) + start);
 		}
-		return;
 	}
 	
 	function switchPlace(index, pIndex){
