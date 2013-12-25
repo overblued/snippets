@@ -31,7 +31,7 @@ BinaryHeap.prototype = {
 				this.stack[0] = this.stack[len];
 				this.stack.length = len;
 			
-				this.siftdown(0);
+				this.siftdown();
 			}
 			return item;
 		}
@@ -45,26 +45,33 @@ BinaryHeap.prototype = {
 			this.switchPlace(index , index = (index - 1 >> 1));
 		}
 	},
-	//recursively sift the first node (0) down
-	siftdown: function (index){
-		var childIndex1 = (index << 1) + 1,
+	// sift the first node (0) down
+	siftdown: function (){
+		var index = 0,
+			childIndex1, childIndex2,
+			child1, child2,
+			candidate;
+		while (true){
+			childIndex1 = (index << 1) + 1,
 			childIndex2 = childIndex1 + 1,
 			child1 = this.stack[childIndex1],
 			child2 = this.stack[childIndex2],
-			candidate;
-		//find the target to switch in one of its children;
-		if (child2 && this.fn(child2, child1) && this.fn(child2, this.stack[index])){
-			candidate = childIndex2;
-		} else if (child1 && this.fn(child1, this.stack[index])){
-			candidate = childIndex1;
+			candidate = 0;
+			//find the target to switch in one of its children;
+			if (child2 && this.fn(child2, child1) && this.fn(child2, this.stack[index])){
+				candidate = childIndex2;
+			} else if (child1 && this.fn(child1, this.stack[index])){
+				candidate = childIndex1;
+			}
+			//do the switch and continue(recusive) sifting
+			if (candidate){
+				this.switchPlace(candidate, index);
+				index = candidate;
+				continue;
+			}
+			//done
+			return false;
 		}
-		//do the switch and continue(recusive) sifting
-		if (candidate){
-			this.switchPlace(candidate, index);
-			this.siftdown(candidate);
-		}
-		//done
-		return false;
 	},
 	switchPlace: function (i, j) {
 		var temp = this.stack[i];
