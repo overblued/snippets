@@ -31,7 +31,7 @@ BinaryHeap.prototype = {
 				this.stack[0] = this.stack[len];
 				this.stack.length = len;
 			
-				this.siftdown();
+				this.siftdown(0);
 			}
 			return item;
 		}
@@ -45,14 +45,9 @@ BinaryHeap.prototype = {
 			this.switchPlace(index , index = (index - 1 >> 1));
 		}
 	},
-	// sift the first node (0) down
-	siftdown: function (){
-		var index = 0,
-			childIndex1, childIndex2,
-			child1, child2,
-			candidate;
-		while (true){
-			childIndex1 = (index << 1) + 1,
+	// sift the first node (0) down, another modification, using tail call instead of a while loop
+	siftdown: function (index){
+		var childIndex1 = (index << 1) + 1,
 			childIndex2 = childIndex1 + 1,
 			child1 = this.stack[childIndex1],
 			child2 = this.stack[childIndex2],
@@ -66,12 +61,11 @@ BinaryHeap.prototype = {
 			//do the switch and continue(recusive) sifting
 			if (candidate){
 				this.switchPlace(candidate, index);
-				index = candidate;
-				continue;
+				return this.siftdown(candidate);
+			} else {
+				//done
+				return false;
 			}
-			//done
-			return false;
-		}
 	},
 	switchPlace: function (i, j) {
 		var temp = this.stack[i];
