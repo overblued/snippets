@@ -1,6 +1,6 @@
 /* * *
  *
- * Merge sort
+ * insertion sort
  *
  * Time:		O(n^2), O(n^2), O(n)
  * Space:		O(1), O(n)
