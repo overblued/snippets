@@ -24,7 +24,7 @@ function findNthPrime(n){
 		}
 		latest +=2;
 	}
-	return primes.pop();
+	return primes[n-1];
 }
 var n = 10001;
 console.time('time eclapsed:');
