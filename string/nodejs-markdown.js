@@ -53,12 +53,18 @@ var preHTML = '<html><head>\
 */
 
 var syntax = [
-//escape
-	{	regex: /</g,
-		sub: '&lt;'
+//linebreak
+	{	regex: /  \n/g,
+		sub: '<br />'
 	},
 //block
 	//heading
+	{	regex: /^(.+\n)={4,}\n/gm,
+		sub: '#$1\n'
+	},
+	{	regex: /^(.+\n)\-{4,}\n/gm,
+		sub: '##$1\n'
+	},
 	{	regex: /^(#{1,6})(.*)$/gm,
 		sub: function (m,p1,p2) {
 			return "<h" + p1.length + ">" + p2 + "</h" + p1.length + ">";
@@ -70,13 +76,15 @@ var syntax = [
 			return '<blockquote>\n' + m.replace(/^>/gm, '') + '</blockquote>\n'
 		}
 	},
+	//unordered list
+	{	//regex: /^/gm,
+	
+	},
 	// ordered list
-	{
-		regex:/^\s*1\..*\n(?:[\d\s].*\n)+/gm,
+	{	regex:/^\s*1\..*\n(?:[\d\s].*\n)+/gm,
 		sub: function (m) {
 			return '<ol><li>\n' + m.replace(/^\s*1\./,'').replace(/^\s*(\d{1,2}\.)/gm, '</li><li>\n') + '</li></ol>'
 		}
-	
 	},
 	//code block
 	{	regex: /^```(\w+)\n/gm,
@@ -116,11 +124,21 @@ var syntax = [
 			return "<i>" + p + "</i>";
 		}
 	},
+	//strikethrough
+	{	regex: /~~([^~]+)~~/g,
+		sub: function (m,p) {
+			return "<s>" + p + "</s>";
+		}
+	},
 	//code
 	{	regex: /`([^`]+)`/g,
 		sub: function (m,p) {
 			return "<code>" + p + "</code>";
 		}
+	},
+	//url
+	{	regex: /\[([\w \-]+)\]\((https?:\/\/[\/\-\w@:%.\+~#=?]{2,256})\)/ig,
+		sub: '<a rel="nofollow" href="$2">$1</a>'
 	}
 	
 ];
@@ -131,7 +149,8 @@ function md(text){
 				.replace(/^\s*/,'')
 				.replace(/\s*$/,'')
 				.replace(/\r\n/g,'\n')
-				.replace(/\n+/g,'\n')
+				.replace(/\r/g,'\n')
+				.replace(/\n{2,}/g,'\n')
 		;//		.split('\n');
 
 	
