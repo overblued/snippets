@@ -1,0 +1,181 @@
+<!--
+	a codepen like testing tool for ideas or tring out new feature
+	@overblued
+-->
+<!doctype html>
+<html>
+	<head>
+	<style>
+		*{box-sizing:border-box;}
+		html,body{
+			margin:0;
+			height:100%;
+			width:100%;
+		}
+		/* flex */
+		.flex-container {
+			justify-content:stretch;
+			display:flex;}
+			
+		/* a default for all items in the container */
+		.flex-container > * {
+			flex: 100 1 100px;
+		}
+		.flex-row { flex-flow: row wrap;}
+		.flex-column { flex-flow: column wrap;}
+		
+		#main{
+			background-color:#e6e6fa;
+			width:100%;
+			height:100%;
+			padding:2px;
+		}
+		.box-left{
+			position:relative;
+			width:100%;
+			height:100%;
+			padding:2px;
+			border:none;
+			box-shadow:inset 0 0 2px black;	}
+		.box-left > iframe {
+			width:100%;
+			height:100%;
+			border:none;background-color:white;
+		}
+		.event-mask{ height:100%;width:100%;background-color:transparent;position:absolute; }
+		.hidden{ display:none }
+		
+		.box-right{  }
+		.box-right>textarea{ font:1.1em Consolas; box-shadow:inset 0 0 3px black; padding: 3px; border:none;transition: flex-grow 0.5s;}
+		.box-right>textarea:focus{ outline:none !important; flex-grow: 200;}
+		
+		.control-bar {
+			cursor:pointer;
+			align-self: center;
+			flex: 0 1 6px;
+			height:31px;}
+		.control-bar:hover{
+			box-shadow:0 0 5px yellow
+		}
+		.control-bar > span{
+			display:block;
+			margin-bottom:2px;
+			width:6px;
+			height:9px;
+			background-color: white;
+			box-shadow:inset 0 0 5px black;
+			border-radius:50%;
+		}
+		
+		#css{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#fae6e6' font-size='60'>CSS</text></svg>");}
+		#js { background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#e6fae6' font-size='60'>JS</text></svg>");}
+		#html{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#e6e6fa' font-size='60'>HTML</text></svg>");}
+	</style>
+	<script>
+		(function(){
+			//this manage how code are showed inside iframe
+			function editor(css,js,html,iframe){
+				this.css = css;
+				this.js = js;
+				this.html = html;
+				this.load();
+				this.iframe = iframe;
+				this.update();
+			}
+			
+			editor.prototype = {
+				update: function () {
+					var html = "<html><head><style>"+ this.css.value+"</style><script>"+this.js.value+"<" + "/script></head><body>" + this.html.value + "</body></html>"
+					this.iframe.contentWindow.document.open();
+					this.iframe.contentWindow.document.write(html);
+					this.iframe.contentWindow.document.close();
+					this.save();
+				},
+				save: function () {
+					localStorage.setItem('css',this.css.value);
+					localStorage.setItem('js',this.js.value);
+					localStorage.setItem('html',this.html.value);
+				},
+				load: function (){
+					this.css.value = localStorage.getItem('css');
+					this.js.value = localStorage.getItem('js');
+					this.html.value = localStorage.getItem('html');
+				}
+			};
+			
+			//helpers
+			function make(str) {
+				return document.createElement(str)
+			}
+			function select(str){
+				return document.querySelector(str);
+			};
+			
+			//main
+			addEventListener('load',function(){
+				var edit = new editor(select('#css'),select('#js'),select('#html'),select('.box-left>iframe'));
+				addEventListener('keydown',function (e) {
+					//manually press F2 to make code taking effect
+					if (e.keyCode == 113){	
+						edit.update();
+					}
+				});
+				
+				//add the ability to rescale the size of 2 window
+				(function () {
+				
+				var scalePercentage = (function () {
+					var left = select('.box-left');
+					var right = select('.box-right');
+					return function (x){
+						left.style.flexGrow = x*2;
+						right.style.flexGrow = 200 - x*2;
+					}
+				})();
+				function onmove(e) {
+					var ratio = Math.round(100 * e.pageX / document.body.clientWidth);
+					scalePercentage(ratio);
+				}
+				
+				var mask = select('.event-mask');
+				var dragging = false;
+				select('.control-bar').addEventListener('mousedown',function (e) {
+					//show mask
+					if (!dragging){
+						e.preventDefault();
+						mask.className = mask.className.replace('hidden','').trim().replace(/ {2,}/g,' ');
+						document.body.addEventListener('mousemove',onmove);
+						dragging = true;
+					}
+				});
+				document.body.addEventListener('mouseup',function (e) {
+					//remove mask
+					if (dragging){
+					e.preventDefault();
+						mask.className = mask.className + ' hidden';
+						document.body.removeEventListener('mousemove',onmove);
+						dragging = false;
+					}
+				});
+				})()
+		
+			});
+		})();
+	</script>
+	</head>
+	<body>
+		<div id="main" class="flex-container flex-row">
+			<div class="box-left"><div class="event-mask hidden"></div><iframe src="about:blank"></iframe></div>
+			<div class="control-bar">
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+			<div class="box-right flex-container flex-column">
+				<textarea id="css"></textarea>
+				<textarea id="js"></textarea>
+				<textarea id="html"></textarea>
+			</div>
+		</div>
+	</body>
+</html>
