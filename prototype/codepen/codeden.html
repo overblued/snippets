@@ -12,16 +12,13 @@
 			height:100%;
 			width:100%;
 		}
+		
 		/* flex */
 		.flex-container {
-			justify-content:stretch;
 			display:flex;}
-			
 		/* a default for all items in the container */
-		.flex-container > * {
-			flex: 100 1 100px;
-		}
-		.flex-row { flex-flow: row wrap;}
+		.flex-container > * { flex: 100 1 1px; }
+		.flex-row { flex-flow: row wrap; }
 		.flex-column { flex-flow: column wrap;}
 		
 		#main{
@@ -30,34 +27,32 @@
 			height:100%;
 			padding:2px;
 		}
-		.box-left{
+		.box-show{
 			position:relative;
-			width:100%;
-			height:100%;
 			padding:2px;
 			border:none;
 			box-shadow:inset 0 0 2px black;	}
-		.box-left > iframe {
-			width:100%;
-			height:100%;
+		.box-show > iframe {
 			border:none;background-color:white;
 		}
-		.event-mask{ height:100%;width:100%;background-color:transparent;position:absolute; }
-		.hidden{ display:none }
 		
-		.box-right{  }
-		.box-right>textarea{ font:1.1em Consolas; box-shadow:inset 0 0 3px black; padding: 3px; border:none;transition: flex-grow 0.5s;}
-		.box-right>textarea:focus{ outline:none !important; flex-grow: 200;}
+		.box-edit{  }
+		.box-edit>textarea{ font:1em Consolas; box-shadow:inset 0 0 3px black; padding: 3px; border:none;transition: flex-grow 0.5s;}
+		.box-edit>textarea:focus{ outline:none !important; flex-grow: 200;}
 		
-		.control-bar {
+		.box-edit > .box-css{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='40%' y='50%' fill='#fae6e6' font-size='60'>CSS</text></svg>");}
+		.box-edit > .box-js { background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='40%' y='50%' fill='#e6fae6' font-size='60'>JS</text></svg>");}
+		.box-edit > .box-html{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='40%' y='50%' fill='#e6e6fa' font-size='60'>HTML</text></svg>");}
+		
+		.box-control {
 			cursor:pointer;
 			align-self: center;
 			flex: 0 1 6px;
 			height:31px;}
-		.control-bar:hover{
+		.box-control:hover{
 			box-shadow:0 0 5px yellow
 		}
-		.control-bar > span{
+		.box-control > span{
 			display:block;
 			margin-bottom:2px;
 			width:6px;
@@ -67,9 +62,14 @@
 			border-radius:50%;
 		}
 		
-		#css{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#fae6e6' font-size='60'>CSS</text></svg>");}
-		#js { background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#e6fae6' font-size='60'>JS</text></svg>");}
-		#html{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'>		<text x='20' y='60' fill='#e6e6fa' font-size='60'>HTML</text></svg>");}
+		
+		/* etc */
+		.hidden{ display:none }
+		.order-1{ order: 1; }
+		.order-2{ order: 2; }
+		.order-3{ order: 3; }
+		/* this prevent iframe from absorbing it's parent node's events*/
+		.event-mask{ height:100%;width:100%;background-color:transparent;position:absolute; }
 	</style>
 	<script>
 		(function(){
@@ -110,10 +110,20 @@
 			function select(str){
 				return document.querySelector(str);
 			};
+			function switchClass(pattern,elem1,elem2) {
+				var c1 = elem1.className,
+					c2 = elem2.className;
+				if(pattern.test(c1) && pattern.test(c2)){
+					var sub1 = c1.match(pattern);
+					var sub2 = c2.match(pattern);
+					elem1.className = c1.replace(pattern,sub2)
+					elem2.className = c2.replace(pattern,sub1)
+				}
+			}
 			
 			//main
 			addEventListener('load',function(){
-				var edit = new editor(select('#css'),select('#js'),select('#html'),select('.box-left>iframe'));
+				var edit = new editor(select('.box-css'),select('.box-js'),select('.box-html'),select('.box-show>iframe'));
 				addEventListener('keydown',function (e) {
 					//manually press F2 to make code taking effect
 					if (e.keyCode == 113){	
@@ -125,9 +135,11 @@
 				(function () {
 				
 				var scalePercentage = (function () {
-					var left = select('.box-left');
-					var right = select('.box-right');
+					var left = select('.box-show');
+					var right = select('.box-edit');
 					return function (x){
+						if (x < 10){ x = 10;}
+						if (x > 90) { x = 90;}
 						left.style.flexGrow = x*2;
 						right.style.flexGrow = 200 - x*2;
 					}
@@ -139,7 +151,7 @@
 				
 				var mask = select('.event-mask');
 				var dragging = false;
-				select('.control-bar').addEventListener('mousedown',function (e) {
+				select('.box-control').addEventListener('mousedown',function (e) {
 					//show mask
 					if (!dragging){
 						e.preventDefault();
@@ -165,16 +177,16 @@
 	</head>
 	<body>
 		<div id="main" class="flex-container flex-row">
-			<div class="box-left"><div class="event-mask hidden"></div><iframe src="about:blank"></iframe></div>
-			<div class="control-bar">
+			<div class="box-show flex-container order-1"><div class="event-mask hidden"></div><iframe src="about:blank"></iframe></div>
+			<div class="box-control flex-container order-2 flex-column">
 				<span></span>
 				<span></span>
 				<span></span>
 			</div>
-			<div class="box-right flex-container flex-column">
-				<textarea id="css"></textarea>
-				<textarea id="js"></textarea>
-				<textarea id="html"></textarea>
+			<div class="box-edit flex-container flex-column order-3">
+				<textarea class="box-css order-1"></textarea>
+				<textarea class="box-js order-3"></textarea>
+				<textarea class="box-html order-2"></textarea>
 			</div>
 		</div>
 	</body>
