@@ -1,5 +1,6 @@
 <!--
 	a codepen like testing tool for ideas or tring out new feature
+	want to see how flexable the flexbox is
 	@overblued
 -->
 <!doctype html>
@@ -37,8 +38,13 @@
 		}
 		
 		.box-edit{  }
-		.box-edit>textarea{ font:1em Consolas; box-shadow:inset 0 0 3px black; padding: 3px; border:none;transition: flex-grow 0.5s;}
-		.box-edit>textarea:focus{ outline:none !important; flex-grow: 200;}
+		.box-edit>div.textarea{
+			font:1em Consolas;
+			box-shadow:inset 0 0 3px black;
+			padding: 3px; border:none;
+			transition: flex-grow 0.5s;
+			background-color:white;}
+		.box-edit>div.textarea:focus{ flex-grow: 200;}
 		
 		.box-edit > .box-css{ background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='40%' y='50%' fill='#fae6e6' font-size='60'>CSS</text></svg>");}
 		.box-edit > .box-js { background-image:url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='40%' y='50%' fill='#e6fae6' font-size='60'>JS</text></svg>");}
@@ -48,15 +54,14 @@
 			cursor:pointer;
 			align-self: center;
 			flex: 0 1 6px;
-			height:31px;}
+			height:40px;
+			width:40px;}
 		.box-control:hover{
 			box-shadow:0 0 5px yellow
 		}
 		.box-control > span{
 			display:block;
 			margin-bottom:2px;
-			width:6px;
-			height:9px;
 			background-color: white;
 			box-shadow:inset 0 0 5px black;
 			border-radius:50%;
@@ -85,21 +90,24 @@
 			
 			editor.prototype = {
 				update: function () {
-					var html = "<html><head><style>"+ this.css.value+"</style><script>"+this.js.value+"<" + "/script></head><body>" + this.html.value + "</body></html>"
+					var html = "<html><head><style>"+ this.getRaw(this.css)+"</style><script>"+this.getRaw(this.js)+"<" + "/script></head><body>" + this.getRaw(this.html) + "</body></html>"
 					this.iframe.contentWindow.document.open();
 					this.iframe.contentWindow.document.write(html);
 					this.iframe.contentWindow.document.close();
 					this.save();
 				},
 				save: function () {
-					localStorage.setItem('css',this.css.value);
-					localStorage.setItem('js',this.js.value);
-					localStorage.setItem('html',this.html.value);
+					localStorage.setItem('css',this.getRaw(this.css));
+					localStorage.setItem('js',this.getRaw(this.js));
+					localStorage.setItem('html',this.getRaw(this.html));
 				},
 				load: function (){
-					this.css.value = localStorage.getItem('css');
-					this.js.value = localStorage.getItem('js');
-					this.html.value = localStorage.getItem('html');
+					this.css.textContent = localStorage.getItem('css');
+					this.js.textContent = localStorage.getItem('js');
+					this.html.textContent = localStorage.getItem('html');
+				},
+				getRaw: function (elem) {
+					return elem.textContent;
 				}
 			};
 			
@@ -158,6 +166,7 @@
 						mask.className = mask.className.replace('hidden','').trim().replace(/ {2,}/g,' ');
 						document.body.addEventListener('mousemove',onmove);
 						dragging = true;
+						select('.box-control').style.flexBasis = '20px';
 					}
 				});
 				document.body.addEventListener('mouseup',function (e) {
@@ -167,7 +176,10 @@
 						mask.className = mask.className + ' hidden';
 						document.body.removeEventListener('mousemove',onmove);
 						dragging = false;
+						
+						select('.box-control').style.flexBasis = '6px';
 					}
+					
 				});
 				})()
 		
@@ -184,9 +196,9 @@
 				<span></span>
 			</div>
 			<div class="box-edit flex-container flex-column order-3">
-				<textarea class="box-css order-1"></textarea>
-				<textarea class="box-js order-3"></textarea>
-				<textarea class="box-html order-2"></textarea>
+				<div contenteditable class="textarea box-css order-1"></div>
+				<div contenteditable class="textarea box-js order-3"></div>
+				<div contenteditable class="textarea box-html order-2"></div>
 			</div>
 		</div>
 	</body>
