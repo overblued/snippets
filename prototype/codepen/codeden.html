@@ -1,39 +1,35 @@
+<!DOCTYPE html>
 <!--
 	a codepen like testing tool for ideas or tring out new feature
 	want to see how flexable the flexbox is
 	@overblued
 -->
-<!doctype html>
 <html>
 	<head>
 	<style>
-		* { box-sizing: border-box; }
-		html,body {
-			margin: 0;
-			height: 100%;
-			width: 100%;
-			overflow:hidden;
-		}
+		html, body { height: 100%; }
+		body { margin: 0; }
 		
 		/* flex */
 		/* container */
-		.flex-container	{ display: flex; }
+		.flex-container	{ display:   flex; }
 		.flex-row 		{ flex-flow: row wrap; }
 		.flex-column	{ flex-flow: column wrap;}
 		.flex-center	{
-						  justify-content: center;
-						  align-content: center;
+			/* these were default for stretch */
+			justify-content: center;
+			align-content:	 center;
 		}
 		/* item */
-		.flex-container > * 	{ flex: 100 1 1px; }
+		.flex-container > * { flex: 100 1 1px; }
 		.order-1 { order: 1; }
 		.order-2 { order: 2; }
 		.order-3 { order: 3; }
 		
 		#main {
-			width: 100%;
-			height: 100%;
+			box-sizing: border-box;
 			padding: 2px;
+			height: 100%;
 			background-color: #e6e6fa;
 		}
 		
@@ -50,43 +46,39 @@
 		/* this prevent iframe from absorbing it's parent node's events*/
 		.event-mask{
 			position: absolute;
-			height: 100%;
-			width: 100%;
+			height:   100%;
+			width:    100%;
 			background-color: transparent;
 		}
 		
 		.box-edit {  }
 		.box-edit > div.textarea {
-			padding: 3px;
+			padding:  3px;
 			overflow: auto;
-			font:14px Consolas, Monospace;
+			font: 0.8em Consolas, Monospace;
 			box-shadow: inset 0 0 3px black;
 			background-color: white;
 			transition: flex-grow 0.3s;
 		}
-		.box-edit > div.textarea:focus { flex-grow: 200;}
+		.box-edit > div.textarea:focus { flex-grow: 200; }
 		/* give each editable box a unique inscription */
 		.box-edit > .css { background-image: url("data: image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='50%' y='50%'  text-anchor='middle' alignment-baseline='middle' fill='#fee' font-size='60'>CSS</text></svg>");}
 		.box-edit > .js { background-image: url("data: image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='50%' y='50%' text-anchor='middle' alignment-baseline='middle' fill='#efe' font-size='60'>JS</text></svg>");}
 		.box-edit > .html { background-image: url("data: image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='100%' width='100%'><text x='50%' y='50%' text-anchor='middle' alignment-baseline='middle' fill='#eef' font-size='60'>HTML</text></svg>");}
 		
-		.box-control {
-			height: 1.5em;
-			width:  1.5em;
-			align-self: center;
-			flex: 0 1 0.75em;
+		.box-resize {
+			flex: 0 1 5px;
 			cursor: col-resize;
-		}
-		.box-control:hover { box-shadow: 0 0 5px yellow; }
-		.box-control > span {
-			display: block;
-			margin:1px;
-			background-color: #666;
-			flex: 0 1 1px;
+		} 
+		.box-resize > span {
+			margin: auto;
+			width:	1px;
+			height:	1px;
+			background-color: #999;
 		}
 		
 		/* etc */
-		.hidden{ display: none }
+		.hidden{ display: none; }
 
 	</style>
 	<script>
@@ -97,7 +89,7 @@
 				this.js = js;
 				this.html = html;
 				this.load();
-				this.iframe = iframe;
+				this.iframeDoc = iframe.contentWindow.document;
 				this.update();
 			}
 			editor.prototype = {
@@ -106,9 +98,9 @@
 					var css = this.getRaw(this.css).replace(/<link.+?>/g,function(m){cssLinks += m;return '';});
 					
 					var html = "<html><head>" + cssLinks + "<style>"+ css +"</style><script>"+this.getRaw(this.js)+"<" + "/script></head><body>" + this.getRaw(this.html) + "</body></html>";
-					this.iframe.contentWindow.document.open();
-					this.iframe.contentWindow.document.write(html);
-					this.iframe.contentWindow.document.close();
+					this.iframeDoc.open();
+					this.iframeDoc.write(html);
+					this.iframeDoc.close();
 					this.save();
 				},
 				save: function () {
@@ -138,6 +130,12 @@
 				}
 			};
 			
+			function Layout() {
+				
+			}
+			Layout.prototype = {
+			
+			};
 			//helpers
 			function intVal(n,l,h){
 				return Math.min(Math.max(n,l),h);
@@ -171,7 +169,7 @@
 				
 				var $mask = $('.event-mask');
 				var $body = $(document.body);
-				$('.box-control').on('mousedown',function (e) {
+				$('.box-resize').on('mousedown',function (e) {
 					//show mask
 					if ($mask.hasClass('hidden')){
 						e.preventDefault();
@@ -198,9 +196,11 @@
 	</head>
 	<body>
 		<div id="main" class="flex-container flex-row">
-			<div class="box-show flex-container order-1"><div class="event-mask hidden"></div><iframe></iframe></div>
-			<div class="box-control flex-container flex-center flex-row order-2">
-				<span></span>
+			<div class="box-show flex-container order-1">
+				<div class="event-mask hidden"></div>
+				<iframe></iframe>
+			</div>
+			<div class="box-resize flex-container flex-column order-2">
 				<span></span>
 			</div>
 			<div class="box-edit flex-container flex-column order-3">
