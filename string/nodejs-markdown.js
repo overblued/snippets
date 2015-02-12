@@ -20,7 +20,7 @@ var preHTML = '<html><head>\
 					.article p{\
 						line-height: 1.6;\
 					}\
-					.article pre{\
+					.article pre>code{\
 						background-color:#e6e6fa;\
 						padding:1em;\
 						tab-size:4;\
@@ -43,8 +43,8 @@ var preHTML = '<html><head>\
 					  quotes: "\201C""\201D""\2018""\2019";\
 					}\
 				\</style>\
-				<link rel="stylesheet" href="http://localhost:8000/Code/lib/highlightjs/default.css">\
-				<script src="http://localhost:8000/Code/lib/highlightjs/highlight.pack.js"></script>\
+				<link href="http://cdn.bootcss.com/highlight.js/8.4/styles/default.min.css" rel="stylesheet">\
+				<script src="http://cdn.bootcss.com/highlight.js/8.4/highlight.min.js"></script>\
 				<script>hljs.initHighlightingOnLoad();</script>\
 				\<body>';
 
