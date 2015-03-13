@@ -26,7 +26,7 @@ var preHTML = '<html><head>\
 						tab-size:4;\
 					}\
 \
-					.article p>code{\
+					.article code{\
 						border-radius:3px;\
 						background-color:#fae6e6;\
 						padding:0.2em 5px\
@@ -87,14 +87,13 @@ var syntax = [
 		}
 	},
 	//code block
-	{	regex: /^```(\w+)\n/gm,
-		sub: function(m,p){
-			return "<pre><code>";
+	{	regex: /```\w+\n([\s\S]+?)```/g,
+		sub: function(m,p){console.log(p)
+		  p = p.replace(/</g,'&lt;')
+					.replace(/>/g,'&gt;')
+					.replace(/&/g,'&amp');
+			return "<pre><code>" + p + "</code></pre>";
 		}
-	},
-	//code block 
-	{	regex: /^```$/gm,
-		sub: "</code></pre>"
 	},
 //after block
 	//adding a <p> tag to every line without a tag
@@ -107,31 +106,31 @@ var syntax = [
 //before inline
 //inline
 	//italicBold
-	{	regex: /\*\*\*([^\*]+)\*\*\*/g,
+	{	regex: /\*\*\*(.+?)\*\*\*/g,
 		sub: function (m,p) {
 			return "<i><b>" + p + "</b></i>";
 		}
 	},
 	//bold:
-	{	regex: /\*\*([^\*]+)\*\*/g,
+	{	regex: /\*\*(.+?)\*\*/g,
 		sub: function (m,p) {
 			return "<b>" + p + "</b>";
 		}
 	},
 	//italic
-	{	regex: /\*([^\*]+)\*/g,
+	{	regex: /\*(.+?)\*/g,
 		sub: function (m,p) {
 			return "<i>" + p + "</i>";
 		}
 	},
 	//strikethrough
-	{	regex: /~~([^~]+)~~/g,
+	{	regex: /~~(.+?)~~/g,
 		sub: function (m,p) {
 			return "<s>" + p + "</s>";
 		}
 	},
 	//code
-	{	regex: /`([^`]+)`/g,
+	{	regex: /`(.+?)`/g,
 		sub: function (m,p) {
 			return "<code>" + p + "</code>";
 		}
