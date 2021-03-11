@@ -1,11 +1,14 @@
 /* * *
  *
  * a string manipulator
- * for dev or fun
+ * can be used with vim
  *
  * * * * * * * * * * * * * * * * * * */
 
+
 var actions, defaultActions, processString;
+
+
 actions = {
 	 "d":	unescape
 	,"e":	escape
@@ -20,7 +23,7 @@ actions = {
 //to transform the string
 defaultActions = [
 	//add quotes to keys/values inside a pair of {}
-	,function jsonify(str){
+	function jsonify(str){
 		if (! /^{[^}]+}$/gm.test(str)){ return false; }
 		return '{\n' + str.slice(1, -1).split(',').map(function(parts){
 			if (parts.indexOf(':') == -1) {
@@ -72,9 +75,7 @@ defaultActions = [
 		//it may be an invalid arithmetic expression
 			try{
 				return str + ' = ' + eval(str);
-			} catch(e) {
-				return false;
-			}
+			} catch(e) { return false; }
 		}
 		return false;
 	}
@@ -100,7 +101,6 @@ defaultActions = [
 		return str.toUpperCase();
 	}
 	,function(str){
-		console.log('unchanged');
 		return str;
 	}
 ];
@@ -109,7 +109,7 @@ processString = function (str){
 
 	if ( !(str = str.trim()) ) return '';
 	//get action
-	var act = str.match(/\\([a-z]{1,3})$/);
+	var act = str.match(/\\([a-z]{1,2})$/);
 	if (act) {
 		act = act[1];
 		str = str.slice(0,str.length - act.length - 1)
@@ -123,8 +123,22 @@ processString = function (str){
 		return defaultActions[index](str) || takeDefaultActions(index+1);
 	})(0);
 };
-console.log(processString(process.argv[2] || process.argv[3]));
 
-//for some reason unknown, i have to add this line to make multiline string works
-console.log('');
+if (process.argv[2] || process.argv[3]) {
+  console.log(processString(process.argv[2] || process.argv[3]));
+  //for some reason unknown, i have to add this line to make multiline string works
+  console.log('');
+} else {
+  const readline = require('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  rl.question("",answer=>{
+    console.log(processString(answer))
+    rl.close()
+  })
+}
+
+
 	
